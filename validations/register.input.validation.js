@@ -1,16 +1,15 @@
-const { body, validationResult }  = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
 exports.registerValidation = [
-    body('full_name')
+    body('first_name')
         .trim()
         .notEmpty().withMessage('Full name is required')
         .isLength({ min: 3 }).withMessage('Full name must be at least 3 characters long'),
 
-    body('user_name')
+    body('last_name')
         .trim()
-        .notEmpty().withMessage('Username is required')
-        .isAlphanumeric().withMessage('Username must contain only letters and numbers')
-        .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+        .notEmpty().withMessage('Full name is required')
+        .isLength({ min: 3 }).withMessage('Full name must be at least 3 characters long'),
 
     body('email')
         .trim()
@@ -28,7 +27,10 @@ exports.registerValidation = [
         .trim()
         .notEmpty().withMessage('Phone number is required')
         .matches(/^\+?[1-9]\d{1,14}$/).withMessage('Phone number must be in a valid international format'),
-
+    body('cin_number')
+        .trim()
+        .notEmpty().withMessage('Gender is required')
+        .isLength({ max: 8 }).withMessage('CIN Number must be smaller than 8 characters'),
     body('country')
         .trim()
         .notEmpty().withMessage('Country is required'),
@@ -41,16 +43,16 @@ exports.registerValidation = [
         .trim()
         .notEmpty().withMessage('Address is required'),
     function (req, res, next) {
-        try{
+        try {
             const errors = validationResult(req);
-            
-            if(!errors.isEmpty()){                
+
+            if (!errors.isEmpty()) {
                 return res.status(401).json({
                     error: errors.array()[0].msg
                 })
             }
             next();
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 error: error
             })

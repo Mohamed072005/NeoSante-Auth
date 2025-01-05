@@ -1,7 +1,7 @@
-const { findUserByEmailPhoneOrUsernameForRegister, findUserByEmailOrPhoneOrUserName, createUser, findUserByEmail, findUserById } = require('../repositorys/user.repository');
+const { findUserByEmailPhoneOrCinNumberForRegister, findUserByEmailOrPhoneOrUserName, createUser, findUserByEmail, findUserById, verifiedUserAccount } = require('../repositorys/user.repository');
 const { generateJWT, verifyJWT } = require('../helpers/jwt.helper');
 const { generateOTP } = require('../helpers/otp.generator.helper');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { sendMailForResetPassword, sendOTPEmail } = require('./email.services');
 
 exports.register = async (userData) => {
@@ -9,28 +9,31 @@ exports.register = async (userData) => {
         email, 
         password, 
         phone_number, 
-        user_name,
-        full_name,
+        last_name,
+        first_name,
+        cin_number,
         country,
         city,
         address
         } = userData;
 
-    const userExist = await findUserByEmailPhoneOrUsernameForRegister(email, phone_number, user_name);
-    const hachedPassword = await bcrypt.hash(password, 10);
+    const userExist = await findUserByEmailPhoneOrCinNumberForRegister(email, phone_number, cin_number);
     if(userExist){
         throw new Error('user already exists');
     }
+    const hachedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await createUser({
         email, 
         password: hachedPassword, 
         phone_number, 
-        user_name,
-        full_name,
+        cin_number,
+        first_name,
+        last_name,
         country,
         city,
-        address
+        address,
+        roleId: "3d38dabe-49b8-4b43-a204-8b4393fb57b8"
     })
 
     return newUser;
@@ -40,12 +43,11 @@ exports.checkExistingUserByJWTEmail = async (token) => {
     try{
         if(!token || token === ''){
             throw new Error("invalid token");
-             
         }
         
         const decoded = verifyJWT(token);
         const userEmail = decoded.identifier;
-        const user = await findUserByEmail(userEmail); 
+        const user = await verifiedUserAccount(userEmail); 
         if(!user){
             throw new Error('user not found');
         }

@@ -9,93 +9,47 @@ exports.sendMail = async (mailData, token) => {
             user: process.env.NODEJS_GMAIL_APP_USER,
             pass: process.env.NODEJS_GMAIL_APP_PASSWORD
         }
-    }
+    };
 
     const mailGenerator = new Mailgen({
         theme: 'default',
         product: {
-            name:'AlloMedia',
-            link: 'https://github.com/Mohamed072005/AlloMedia',
-            copyright: '© 2024 AlloMedia. All rights reserved.',
-            // logo: 'http://localhost:3000/img/AlloMedia_transparent-.png'
+            name: 'NéoSanté',
+            link: 'https://github.com/Mohamed072005/NeoSante-Auth', // Update with actual website link
+            copyright: '© 2025 NéoSanté. Tous droits réservés.',
         }
-    })
+    });
 
     const mailBody = {
         body: {
             name: mailData.user_name,
-            intro: 'Welcome to AlloMedia Company! We\'re very excited to have you on board.',
+            intro: 'Bienvenue sur NéoSanté ! Nous sommes ravis de vous compter parmi nous.',
             action: {
-                instructions: 'To get started with AlloMedia, please click here:',
+                instructions: 'Pour confirmer votre compte et commencer à utiliser NéoSanté, cliquez sur le bouton ci-dessous :',
                 button: {
                     color: '#22BC66',
-                    text: 'Confirme your account!',
-                    link: `http://localhost:3000/verify/account?token=${token}`
+                    text: 'Confirmer mon compte',
+                    link: `${process.env.BACK_END_URL}${process.env.APP_PORT}/verify/account?token=${token}`
                 }
             },
-            outro: 'If you did not request a password reset, please disregard this email. If you have any concerns, feel free to reach out to our support team.',
-            signature: 'Best regards, The AlloMedia Team'
-        }
-    }
-
-    const emailContent = mailGenerator.generate(mailBody);
-    const message = {
-        from: process.env.NODEJS_GMAIL_APP_USER,
-        to: mailData.email,
-        subject: 'Confirme your account',
-        html: emailContent,
-    }
-
-    return await sendEmail(config, message);
-}
-
-exports.sendMailForResetPassword = async (mailData, token) => {
-    const config = {
-        service: 'gmail',
-        auth: {
-            user: process.env.NODEJS_GMAIL_APP_USER,
-            pass: process.env.NODEJS_GMAIL_APP_PASSWORD
-        }
-    }
-
-    const mailGenerator = new Mailgen ({
-        theme: 'default',
-        product: {
-            name: 'AlloMedia',
-            link: 'https://github.com/Mohamed072005/AlloMedia',
-            copyright: '© 2024 AlloMedia. All rights reserved.',
-            // logo: 'http://localhost:3000/img/AlloMedia_transparent-.png'
-        }
-    })
-
-    const mailBody = {
-        body: {
-            name: mailData.user_name,
-            intro: 'It looks like you requested a password reset for your AlloMedia account. No worries, we’ve got you covered!',
-            action: {
-                instructions: 'To reset your password and regain access to your account, click the button below:',
-                button: {
-                    color: '#FF5F57', 
-                    text: 'Reset Password',
-                    link: `http://localhost:3000/to/reset/password?token=${token}`,
-                    
-                }
-            },
-            outro: 'If you did not request a password reset, please disregard this email. If you have any concerns, feel free to reach out to our support team.',
-            signature: 'Best regards, The AlloMedia Team'
+            outro: 'Si vous n’avez pas créé de compte sur NéoSanté, veuillez ignorer cet email. Pour toute assistance, contactez notre support.',
+            signature: 'Cordialement, L’équipe NéoSanté'
         }
     };
 
     const emailContent = mailGenerator.generate(mailBody);
     const message = {
-        from: process.env.NODEJS_GMAIL_APP_USER,
+        from: {
+            name: 'NéoSanté',
+            address: process.env.NODEJS_GMAIL_APP_USER,
+        },
         to: mailData.email,
-        subject: 'Reset password email',
+        subject: 'Confirmation de votre compte NéoSanté',
         html: emailContent,
-    }
+    };
 
     return await sendEmail(config, message);
-}
+};
 
 exports.sendOTPEmail = async (userData, code, agent) => {
     const config = {
@@ -109,8 +63,8 @@ exports.sendOTPEmail = async (userData, code, agent) => {
     const mailGenerator = new Mailgen({
         theme: 'default',
         product: {
-            name: 'AlloMedia',
-            link: 'https://github.com/Mohamed072005/AlloMedia',
+            name: 'NéoSanté',
+            link: 'https://github.com/Mohamed072005/NeoSante-Auth',
             copyright: '© 2024 AlloMedia. All rights reserved.',
             // logo: 'http://localhost:3000/img/AlloMedia_transparent-.png'
         }

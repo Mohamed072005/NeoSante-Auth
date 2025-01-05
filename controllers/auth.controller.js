@@ -4,18 +4,19 @@ const { sendMail } = require('../services/email.services');
 const { generateJWT } = require('../helpers/jwt.helper');
 
 exports.register = async (req, res) => {
-    const userData = req.body;
+    const userData = req.body;    
     try{
         const newUser = await register(userData);
-        const token = generateJWT(userData.email, '1800s');
-        const sendEmail = await sendMail(newUser, token);
+        console.log(newUser.id);
+        
+        const token = generateJWT(newUser.email, '1800s');
+        await sendMail(newUser, token);
         return res.status(200).json({
             message: "registered and email sended",
             user: newUser,
-            email : sendEmail,
             token: token
         })
-    }catch(error){
+    }catch(error){        
         if(error.message === 'user already exists'){
             return res.status(409).json({
                 errorMessage: error.message
@@ -38,10 +39,9 @@ exports.checkEmailConfirmed = async (req, res) => {
     const token = req.query.token;
     try{
         const user = await checkExistingUserByJWTEmail(token);
-        user.virefied = true;
-        user.save();
         return res.status(200).json({
             message: 'Your account confirmed successfully!!',
+            date:  user.verifiedAt
         });
     }catch(err){
         if(err.message === 'invalid token'){
