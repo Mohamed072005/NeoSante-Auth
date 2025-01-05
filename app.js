@@ -20,13 +20,18 @@ app.use(authRouter);
 app.use(userRouter);
 
 
-db.sequelize.sync().then(() => {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+const startServer = (port) => {
+  return new Promise((resolve) => {
+    const server = app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      resolve(server);
+    });
   });
-}).catch((error) => {
-  console.error('Error syncing database:', error);
-});
+};
 
+// Start the server only if the file is run directly
+if (require.main === module) {
+  startServer(port);
+}
 
-module.exports = app;
+module.exports = { app, startServer };

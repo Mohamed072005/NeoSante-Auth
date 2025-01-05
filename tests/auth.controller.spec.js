@@ -2,7 +2,7 @@ const { register: authController } = require('../controllers/auth.controller');
 const { register: registerService } = require('../services/user.services');
 const { generateJWT } = require('../helpers/jwt.helper');
 const { sendMail } = require('../services/email.services');
-const app = require('../app');
+const { app, startServer} = require('../app');
 const request = require('supertest');
 
 
@@ -21,6 +21,16 @@ jest.mock('../services/email.services', () => ({
 
 describe('Auth Controller', () => {
     let req, res;
+    let server;
+
+    beforeAll(async () => {
+        server = await startServer(4001);
+    });
+
+    afterAll(async () => {
+        // Close server after tests
+        await new Promise((resolve) => server.close(resolve));
+    });
 
     beforeEach(() => {
         req = {
