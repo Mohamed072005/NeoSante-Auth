@@ -1,18 +1,15 @@
-const User = require('../models/user.model');
+const { User } = require('../models');
+const { Op } = require('sequelize');
 
-exports.findUserByEmailPhoneOrUsernameForRegister = async (email, phonNumber, userName) => {
+exports.findUserByEmailPhoneOrCinNumberForRegister = async (email, phoneNumber, cinNumber) => {
     return User.findOne({
-        $or : [
-            {
-                email: email
-            },
-            {
-                phone_number: phonNumber
-            },
-            {
-                user_name: userName
-            }
-        ]
+        where: {
+            [Op.or]: [
+                { email: email },
+                { phone_number: phoneNumber },
+                { cin_number: cinNumber },
+            ],
+        },
     });
 };
 
@@ -22,16 +19,18 @@ exports.createUser = async (userData) => {
 }
 
 exports.getUsers = async () => {
-    return User.find();
+    return User.findAll();
 }
 
 exports.findUserByEmail = async (email) => {
-    return await User.findOne({email : email});
+    return await User.findOne({
+        where: { email },
+    });
 }
 
 exports.findUserByEmailOrPhoneOrUserName = async (identifier) => {
     return await User.findOne({
-        $or : [
+        $or: [
             {
                 email: identifier
             },
@@ -47,4 +46,14 @@ exports.findUserByEmailOrPhoneOrUserName = async (identifier) => {
 
 exports.findUserById = async (userId) => {
     return await User.findOne({ _id: userId });
+}
+
+exports.verifiedUserAccount = async (identifier) => {
+    return await User.update({
+        verifiedAt: new Date(), // Set current timestamp
+    }, {
+        where: {
+            email: identifier// or whatever identifier you're using
+        }
+    }) || null;
 }
