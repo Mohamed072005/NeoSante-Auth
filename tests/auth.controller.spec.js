@@ -121,7 +121,6 @@ describe('Auth Controller', () => {
         registerService.mockRejectedValue(validationError);
 
         await authController(req, res);
-        console.log(res);
         
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
