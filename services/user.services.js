@@ -189,7 +189,6 @@ exports.handelOTPCode = async (token, code, rememberMe, userAagent) => {
             error.status = 404;
             throw error;
         }
-        
         const alreadyHaveThisAgent = await this.verifyUserAgentForOTP(userAagent, user);
         
         if(rememberMe){
