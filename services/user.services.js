@@ -1,8 +1,10 @@
-const { findUserByEmailPhoneOrCinNumberForRegister, findUserByEmailOrPhoneOrUserName, createUser, findUserByEmail, findUserById, verifiedUserAccount } = require('../repositorys/user.repository');
+const { findUserByEmailPhoneOrCinNumberForRegister, findUserByEmailOrPhoneOrUserName, createUser, findUserByEmail, findUserById, verifiedUserAccount, findUserByIdAndHisAgents } = require('../repositorys/user.repository');
 const { generateJWT, verifyJWT } = require('../helpers/jwt.helper');
 const { generateOTP } = require('../helpers/otp.generator.helper');
 const bcrypt = require('bcryptjs');
 const { sendMailForResetPassword, sendOTPEmail } = require('./email.services');
+const { createUserAgent } = require('../repositorys/user-agents.repository');
+const { sendMail } = require('./email.services');
 
 exports.register = async (userData) => {
     const { 
@@ -59,23 +61,34 @@ exports.checkExistingUserByJWTEmail = async (token) => {
 }
 
 exports.verifyUserAgentForOTP = async (userAgent, user) => {
-        const currentAgent = await user.user_agents.find(ua => ua.agent === userAgent);
-        if(currentAgent){
-            return true;
-        }
+    if (!userAgent || userAgent === '') {
         return false;
+    }
+        const currentAgent = await user.user_agents.find(ua => ua.agent === userAgent);
+        return currentAgent ? currentAgent : null;
     }
 
 exports.login = async (identifier, password, userAagent) => {
     try{
-        const user = await findUserByEmailOrPhoneOrUserName(identifier);
+        const user = await findUserByEmailOrPhoneOrUserName(identifier);        
         if(!user){
             throw new Error('Invalide login');
         }
+
+        if (!user.verifiedAt) {
+            const token = generateJWT(user.email, '1800s');
+            await sendMail(user, token);
+            return {
+                message: "We send you an email to confirm your account",
+                user_email: user.email,
+                status: 204
+            }
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(isMatch){
             const agent = await this.verifyUserAgentForOTP(userAagent, user);
-            if(agent){
+            if(agent && agent.verified){
                 const token = generateJWT(user._id, '24h');
                 return  {
                     message: "login successfully",
@@ -85,7 +98,7 @@ exports.login = async (identifier, password, userAagent) => {
                 };
             }
             const otp = generateOTP();
-            const token = generateJWT({code: otp, user_id: user._id, user_email: user.email}, '300s');
+            const token = generateJWT({code: otp, user_id: user.id, user_email: user.email}, '300s');
             await sendOTPEmail(user, otp, userAagent);
             return  {
                 message: "we send you email with code to virefy this new device",
@@ -94,7 +107,6 @@ exports.login = async (identifier, password, userAagent) => {
                 user,
             };
         }else{
-            console.log(user);
             throw new Error('Invalide login');
         }
     }catch(err){
@@ -170,26 +182,34 @@ exports.handelOTPCode = async (token, code, rememberMe, userAagent) => {
             error.status = 401;
             throw error;
         }
-        const user =  await findUserById(verifyToken.identifier.user_id);
+
+        const user =  await findUserByIdAndHisAgents(verifyToken.identifier.user_id);
         if(!user){
             const error = new Error('user not found!'); 
             error.status = 404;
             throw error;
         }
-        if(rememberMe){
-            user.user_agents.push({ agent: userAagent, isCurrent: true});
-            await user.save();
-        }else {
-            user.user_agents.push({ agent: userAagent });
-            await user.save();
-        }
         
-
+        const alreadyHaveThisAgent = await this.verifyUserAgentForOTP(userAagent, user);
+        
+        if(rememberMe){
+            if(alreadyHaveThisAgent){
+                user.user_agents.verified = new Date().toISOString();
+                await user.user_agents.save();
+                console.log(user);
+            }else {
+                await createUserAgent(userAagent, new Date().toISOString(), user.id);
+            }
+        }else {            
+            await createUserAgent(userAagent, null, user.id);
+        }
         return {
-            token: generateJWT(user._id, '24h'),
+            token: generateJWT(user.id, '24h'),
             user: user
         } 
     }catch(err){
+        console.log(err);
+        
         throw err;
     }
 }
