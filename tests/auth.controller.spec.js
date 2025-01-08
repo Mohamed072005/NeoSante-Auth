@@ -1,14 +1,15 @@
-const { register: authController } = require('../controllers/auth.controller');
-const { register: registerService } = require('../services/user.services');
+const { register: authController, login: authLogin } = require('../controllers/auth.controller');
+const { register: registerService, login: loginService } = require('../services/user.services');
 const { generateJWT } = require('../helpers/jwt.helper');
 const { sendMail } = require('../services/email.services');
-const { app, startServer} = require('../app');
+const { app, startServer } = require('../app');
 const request = require('supertest');
 
 
 // Mock the dependencies
 jest.mock('../services/user.services', () => ({
-    register: jest.fn()
+    register: jest.fn(),
+    login: jest.fn()
 }));
 
 jest.mock('../helpers/jwt.helper', () => ({
@@ -19,7 +20,7 @@ jest.mock('../services/email.services', () => ({
     sendMail: jest.fn()
 }));
 
-describe('Auth Controller', () => {
+describe('Auth Controller Register', () => {
     let req, res;
     let server;
 
@@ -58,10 +59,10 @@ describe('Auth Controller', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
-    
+
     test('should successfully register a new user', async () => {
-        const mockUser = { 
-            id: '123', 
+        const mockUser = {
+            id: '123',
             email: 'test@example.com'
         };
         const mockToken = 'mock-token';
@@ -84,7 +85,7 @@ describe('Auth Controller', () => {
         });
     });
 
-    test('should return error user already exist',  async () => {
+    test('should return error user already exist', async () => {
         const mockError = new Error('user already exists');
         registerService.mockRejectedValue(mockError);
 
@@ -113,7 +114,7 @@ describe('Auth Controller', () => {
                         address: '123 Main St'
                     }
                 }
-            })            
+            })
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty("error", 'Full name is required')
     })
@@ -131,7 +132,7 @@ describe('Auth Controller', () => {
         registerService.mockRejectedValue(validationError);
 
         await authController(req, res);
-        
+
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
             field: 'email',
@@ -139,3 +140,77 @@ describe('Auth Controller', () => {
         });
     });
 });
+
+describe('Auth Controller Login', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {
+            body: {
+                identifier: 'test@example.com',
+                password: 'XXXXXXXXX'
+            },
+            headers: {
+                token: 'uytwtiwfvh7y3287y38yhfbhvjwby378',
+                user_agent: 'PostmanRuntime/7.43.0'
+            }
+        }
+
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+    })
+
+    test('should return 200 and user data on successful login', async () => {
+        const mockUser = {
+            id: '123',
+            email: 'test@example.com',
+            token: 'mock-token'
+        };
+
+        loginService.mockResolvedValue(mockUser);
+
+        await authLogin(req, res);
+
+        expect(loginService).toHaveBeenCalledWith(
+            req.body.identifier,
+            req.body.password,
+            req.headers['user-agent']
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ user: mockUser });
+    });
+
+    test('should return Invalide login', async () => {
+        const mockError = new Error('Invalide login');
+
+        loginService.mockRejectedValue(mockError);
+
+        await authLogin(req, res);
+
+        expect(loginService).toHaveBeenCalledWith(
+            req.body.identifier,
+            req.body.password,
+            req.headers['user-agent']
+        );
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Invalide login!!' });
+    })
+
+    test('should return Login identifier is required', async () => {
+        const response = await request(app)
+            .post('/login')
+            .send({
+                req: {
+                    body: {
+                        identifier: '',
+                        password: 'XXXXXXXXXXX'
+                    }
+                }
+            })
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", 'Login identifier is required')
+    })
+})

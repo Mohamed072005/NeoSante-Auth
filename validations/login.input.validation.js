@@ -1,5 +1,10 @@
 const { body, validationResult } = require('express-validator');
 
+console.log(body('identifier').custom(value => {
+    console.log(value);
+    
+}));
+
 exports.loginValidation = [
     body('identifier')
         .trim()

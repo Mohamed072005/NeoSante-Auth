@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User_Agents.init({
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4
+    },
     agent: DataTypes.STRING,
     verified: DataTypes.DATE,
     userId: {

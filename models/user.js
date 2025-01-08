@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'roleId', 
         as: 'roles'
       })
+
+      User.hasMany(models.User_Agents, {
+        foreignKey: 'userId',
+        as: 'user_agents'
+      })
     }
   }
   User.init({
