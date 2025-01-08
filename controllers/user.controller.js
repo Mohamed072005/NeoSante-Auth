@@ -1,8 +1,7 @@
 const { sendEmailForResetPassword, confirmeResetPasswordRequest, completeRestPasswordRequest } = require('../services/user.services');
-const { Role } = require('../models');
 
 exports.sendEmailForResertPassword = async (req, res) => {
-    const { identifier } = req.body;    
+    const identifier = req.body.identifier;    
     try{
         const response = await sendEmailForResetPassword(identifier);        
         return res.status(200).json({
@@ -10,8 +9,6 @@ exports.sendEmailForResertPassword = async (req, res) => {
             user_email: response.email
         })
     }catch(err){
-        console.log(err.message);
-        
         if(err.status === 401){
             return res.status(401).json({
                 message: err.message
@@ -56,18 +53,5 @@ exports.resetPassword = async (req, res) => {
                 status: 404
             })
         }
-    }
-}
-
-exports.getRoles = async (req, res) => {
-    try{
-        return res.status(200).json({
-            roles: await Role.findAll()
-        })
-    }catch(err){
-        console.log(err);
-        return res.status(500).json({
-            message: err.message
-        })
     }
 }
