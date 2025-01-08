@@ -4,13 +4,12 @@ exports.requestResetPasswordValidation = [
     body('identifier')
         .trim()
         .notEmpty()
-        .withMessage('The Identifier is required')
+        .withMessage('The identifier is required')
         .custom(value => {
             const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
             const phoneNumberFormat = /^\+?[1-9]\d{1,14}$/.test(value)
-            const userNameFormat = /^[a-zA-Z0-9_]+$/.test(value)
 
-            if(!emailFormat && !phoneNumberFormat && !userNameFormat) {
+            if(!emailFormat && !phoneNumberFormat) {
                 throw new Error('Invalide identifiant');
             }
             return true;

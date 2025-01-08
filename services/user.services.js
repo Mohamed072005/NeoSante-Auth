@@ -116,7 +116,7 @@ exports.login = async (identifier, password, userAagent) => {
 
 exports.sendEmailForResetPassword = async (identifier) => {
     try{
-        const findUser = await findUserByEmailOrPhoneOrUserName(identifier);        
+        const findUser = await findUserByEmail(identifier);     
         if(!findUser){
             const error = new Error('Invalid Identifier');
             error.status = 401;
@@ -127,7 +127,6 @@ exports.sendEmailForResetPassword = async (identifier) => {
         await sendMailForResetPassword(findUser ,token);
         return findUser;
     }catch(err){
-        
         throw err;
     }
 }
@@ -140,7 +139,7 @@ exports.confirmeResetPasswordRequest = async (token) => {
             throw error;
         }
         const virefiedToken = verifyJWT(token);
-        const findUser = await findUserByEmailOrPhoneOrUserName(virefiedToken.identifier);
+        const findUser = await findUserByEmail(virefiedToken.identifier);
         if(!findUser){
             const error = new Error('User not found'); 
             error.status = 404;

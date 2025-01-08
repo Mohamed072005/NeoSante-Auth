@@ -6,6 +6,4 @@ const { requestResetPasswordValidation, resetPasswordFormValidation } = require(
 router.post('/ask/reset/password', requestResetPasswordValidation, userController.sendEmailForResertPassword);
 router.get('/to/reset/password', userController.confirmeResetPassword);
 router.post('/reset/password', resetPasswordFormValidation, userController.resetPassword);
-router.get('/roles', userController.getRoles);
-
 module.exports = router;
