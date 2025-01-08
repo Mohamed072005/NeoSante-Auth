@@ -24,11 +24,9 @@
 - **Login Options**: Users can log in with their email, username, or phone number.
 - **Secure Password Storage**: Passwords are securely hashed using `bcrypt`.
 - **SPA Architecture**: Single Page Application for seamless user experience.
-- **CSR Rendering**: Fast and efficient client-side rendering for a smooth UI experience.
 
 ## Technologies Used
 
-- **Frontend**: JavaScript, HTML, CSS
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (via Mongoose)
 - **Security**: bcrypt for secure password hashing, jsonwebtoken (JWT) for authentication
@@ -48,8 +46,8 @@ Make sure you have the following installed on your machine:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/infodev.git
-   cd infodev
+   git clone https://github.com/Mohamed072005/NeoSante-Auth.git
+   cd NeoSante-Auth
    ```
 
 2. **Install dependencies:**
@@ -59,9 +57,9 @@ Make sure you have the following installed on your machine:
 
 3. **Set up environment variables:**
    ```bach
-   DATABASE_URL=mongodb://localhost/neosante-auth
-   APP_PORT=3000
-   NODEJS_GMAIL_APP_USER=allomedia.media@gmail.com
+   DATABASE_URL=mongodb://localhost/database_name
+   APP_PORT=Your Port
+   NODEJS_GMAIL_APP_USER=Your Email
    ```
 
 4. **Start the application:**
@@ -76,7 +74,7 @@ Once the project is up and running, follow these steps to use the authentication
 1. **User Registration**
 
 - Go to the /register route in your browser or Postman.
-- Provide your details (name, email, username, password, phone number).
+- Provide your details (name, email, username, password, phone number, ect...).
 - After submitting the registration form, a confirmation email will be sent to your email address.
 - Click the link in the email to verify your account.
 
@@ -141,7 +139,7 @@ We welcome contributions to improve this project! To contribute, follow the step
 - Clone the forked repository to your local machine.
 
    ```bash
-   git clone https://github.com/your-username/allomedia.git
+   git clone https://github.com/Mohamed072005/NeoSante-Auth.git
    ```
 
 #### 3. Create a New Branch
