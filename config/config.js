@@ -3,11 +3,11 @@ require('dotenv').config();  // Load environment variables from .env file
 
 module.exports = {
     development: {
-        username: process.env.DB_USERNAME || 'postgres',
-        password: process.env.DB_PASSWORD || '123456789',
-        database: process.env.DB_DATABASE || 'neo_sante_auth',
-        host: process.env.DB_HOST || 'localhst',
-        dialect: process.env.DB_DIALECT || 'postgres' 
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        host: process.env.DB_HOST,
+        dialect: process.env.DB_DIALECT
     },
     test: {
         username: process.env.TEST_DB_USERNAME || process.env.DB_USERNAME,
