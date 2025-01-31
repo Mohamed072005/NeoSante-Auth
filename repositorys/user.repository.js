@@ -1,5 +1,5 @@
 const { User, User_Agents } = require('../models');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 exports.findUserByEmailPhoneOrCinNumberForRegister = async (email, phoneNumber, cinNumber) => {
     return User.findOne({
@@ -30,14 +30,10 @@ exports.findUserByEmail = async (email) => {
 
 exports.findUserByEmailOrPhoneOrUserName = async (identifier) => {
     return await User.findOne({
-        $or: [
+        where : 
             {
                 email: identifier
             },
-            {
-                phone_number: identifier
-            }
-        ],
         include: [
             {
                 model: User_Agents,
@@ -48,7 +44,9 @@ exports.findUserByEmailOrPhoneOrUserName = async (identifier) => {
 }
 
 exports.findUserById = async (userId) => {
-    return await User.findOne({ _id: userId });
+    return await User.findOne({ 
+        where: { id: userId }
+    });
 }
 
 exports.verifiedUserAccount = async (identifier) => {

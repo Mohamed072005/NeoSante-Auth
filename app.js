@@ -5,6 +5,7 @@ const path = require('path');
 const authRouter = require("./routes/auth.router");
 const userRouter = require('./routes/user.router');
 const port = process.env.APP_PORT || 3000;
+const cors = require('cors');
 const db = require('./models')
 
 app.set('view engine', 'ejs');
@@ -14,6 +15,14 @@ app.use(express.static('public'));
 
 //middleware for parce the request bodu to json
 app.use(express.json())
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 //routers
 app.use(authRouter);
